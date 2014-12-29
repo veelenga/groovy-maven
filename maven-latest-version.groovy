@@ -7,15 +7,6 @@ import lib.MavenArtifactNewestVersion;
 import org.eclipse.aether.version.Version;
 import org.eclipse.aether.artifact.DefaultArtifact;
 
-@Grab(group='commons-cli', module = 'commons-cli', version = '1.2')
-@Grab(group='org.eclipse.aether', module = 'aether-api', version = '1.0.0.v20140518')
-@Grab(group='org.eclipse.aether', module = 'aether-impl', version = '1.0.0.v20140518')
-@Grab(group='org.eclipse.aether', module = 'aether-connector-basic', version = '1.0.0.v20140518')
-@Grab(group='org.eclipse.aether', module = 'aether-transport-file', version = '1.0.0.v20140518')
-@Grab(group='org.eclipse.aether', module = 'aether-transport-http', version = '1.0.0.v20140518')
-@Grab(group='org.apache.maven', module='maven-aether-provider', version='3.1.0')
-
-
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -23,6 +14,14 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+@Grab(group='commons-cli', module = 'commons-cli', version = '1.2')
+@Grab(group='org.eclipse.aether', module = 'aether-api', version = '1.0.0.v20140518')
+@Grab(group='org.eclipse.aether', module = 'aether-impl', version = '1.0.0.v20140518')
+@Grab(group='org.eclipse.aether', module = 'aether-connector-basic', version = '1.0.0.v20140518')
+@Grab(group='org.eclipse.aether', module = 'aether-transport-file', version = '1.0.0.v20140518')
+@Grab(group='org.eclipse.aether', module = 'aether-transport-http', version = '1.0.0.v20140518')
+@Grab(group='org.apache.maven', module='maven-aether-provider', version='3.1.0')
+@Grab(group='org.slf4j', module='slf4j-simple', version='1.6.1')
 public class Cli {
     private String[] args;
     private Options options = new Options();
@@ -37,11 +36,13 @@ public class Cli {
         this.repositoryList = new LinkedList<RepoStruct>();
 
         options.addOption("h", "help", false, "prints this help");
-        options.addOption("a", "artifacts", true, "[REQUIRED] list of artifacts to get latest version");
+        options.addOption("a", "artifacts", true, "[REQUIRED] list of artifacts to get latest version. " +
+                "Format: groupId:artifactId:version;groupId:artifactId:version. Example: log4j:log4j:[1,).");
         options.addOption("r", "repositories", true,
-                "[REQUIRED] list of repositories where to search artifact. Format: id1=url1;id2=url2."
-                        + " Example: central=http://central.maven.org/maven2/");
-        options.addOption("u", "update", true, "path to pom.xml file or directory to update pom.xml files recursively");
+                "[REQUIRED] list of repositories where to search artifact. Format: id1=url1;id2=url2. " +
+                "Example: central=http://central.maven.org/maven2/");
+        options.addOption("u", "update", true, "path to pom.xml file to update version of specified artifact. " +
+                "May be directory to search pom.xml files recursively.");
 
         parse();
     }
@@ -113,6 +114,7 @@ public class Cli {
         final Map<String, String> artifactVersions = new HashMap<String, String>();
 
         // find versions in repos
+        println "Querying repos..."
         MavenArtifactNewestVersion findNewestVersion = new MavenArtifactNewestVersion(repositoryList);
         for (String artifactName : artifactNames) {
             final DefaultArtifact artifact = new DefaultArtifact(artifactName);
@@ -129,6 +131,7 @@ public class Cli {
 
         // update pom.xml files
         if (pomPath != null){
+          println "Updating files..."
           PomUpdater updater = new PomUpdater();
           updater.update(pomPath, artifactVersions);
         }

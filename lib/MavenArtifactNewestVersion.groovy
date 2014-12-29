@@ -82,8 +82,10 @@ public class MavenArtifactNewestVersion {
         Version newestVersion = rangeResult.getHighestVersion();
 
         if (newestVersion != null){
-          System.out.format("%s.%s: %s -> %s\n", artifact.getGroupId(), artifact.getArtifactId(), newestVersion,
+          System.out.format("====> %s.%s: %s -> %s\n", artifact.getGroupId(), artifact.getArtifactId(), newestVersion,
                   rangeResult.getRepository(newestVersion));
+        }else {
+          System.out.format("====> Error: artifact %s.%s not found in provided maven repos\n", artifact.getGroupId(), artifact.getArtifactId())
         }
 
         return newestVersion;

@@ -29,7 +29,7 @@ public class PomUpdater {
     if (file.isDirectory()){
         updateAll(file, artifactVersions);
     }else {
-        update(file, artifactVersions);
+        updateOne(file, artifactVersions);
     }
   }
 
@@ -41,7 +41,7 @@ public class PomUpdater {
     }
   }
 
-  private void update(File file, Map<String, String> artifactVersions) throws Exception {
+  private void updateOne(File file, Map<String, String> artifactVersions) throws Exception {
     doUpdate(file.getAbsolutePath(), artifactVersions);
   }
 
@@ -111,7 +111,9 @@ public class PomUpdater {
           System.out.println("====> Warn: version tag not found for " + fullName);
           return
         }
-        if (!ver.equals(version.getTextContent())){
+        if (ver.equals(version.getTextContent())){
+          System.out.format("====> Version of %s is up to date(%s)\n", fullName, ver)
+        }else{
           System.out.format("====> Changing version: %s %s => %s\n", fullName, version.getTextContent(), ver);
           version.setTextContent (ver);
         }
